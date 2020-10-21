@@ -214,6 +214,14 @@ memProtConstants["WC"] = ["PAGE_WRITECOMBINE",0x400]
 #  Utility functions                    #
 #---------------------------------------#	
 
+def find_all(a_str, sub):
+    start = 0
+    while True:
+        start = a_str.find(sub, start)
+        if start == -1: return
+        yield start
+        start += len(sub) # use start += 1 to find overlapping matches
+        
 def resetGlobals():
 	"""
 	Clears all global variables
@@ -11070,12 +11078,13 @@ def goFindMSP(distance = 0,args = {}):
 				regpattern = toUnicode(regpattern)
 				factor = 0.5
 			offset = regpattern.find(hexpat)
+			ls = list(find_all(fullpattern, hexpat))
 			if offset > -1:
 				if pattype == "unicode":
 					offset = offset * factor
 				if not silent:
-					dbg.log("    %s contains %s pattern : 0x%s (offset %d)" % (reg,pattype,toHex(regs[reg]),offset))
-				tofile += "    %s contains %s pattern : 0x%s (offset %d)\n" % (reg,pattype,toHex(regs[reg]),offset)
+					for a in ls:    dbg.log("    %s contains %s pattern : 0x%s (offset %d)" % (reg,pattype,toHex(regs[reg]),a))
+				for a in ls:    tofile += "    %s contains %s pattern : 0x%s (offset %d)\n" % (reg,pattype,toHex(regs[reg]),a)
 				if not reg in registers:
 					registers[reg] = ([regs[reg],offset,pattype])
 			else:
